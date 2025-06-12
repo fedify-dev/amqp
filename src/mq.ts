@@ -29,6 +29,23 @@ export interface AmqpMessageQueueOptions {
    * @default `true`
    */
   durable?: boolean;
+
+  /**
+   * Whether to use native retrial mechanism. If set to `true`, the queue will
+   * not acknowledge messages that are not processed successfully, allowing
+   * them to be retried later. If set to `false`, messages will be acknowledged
+   * whether they are processed successfully or not.
+   *
+   * Both approaches have their own advantages and disadvantages.  With native
+   * retrials, much less chance of losing messages, but timing of retrials is
+   * less predictable.  With non-native retrials, retrials are handled by Fedify
+   * itself, which allows for more control over the timing and behavior of
+   * retrials, but may result in lost messages if the process crashes before
+   * acknowledging the message.
+   * @default `false`
+   * @since 0.3.0
+   */
+  nativeRetrial?: boolean;
 }
 
 /**
@@ -53,6 +70,8 @@ export class AmqpMessageQueue implements MessageQueue {
   #durable: boolean;
   #senderChannel?: Channel;
 
+  readonly nativeRetrial: boolean;
+
   /**
    * Creates a new `AmqpMessageQueue`.
    * @param connection A connection to the AMQP server.
@@ -66,6 +85,7 @@ export class AmqpMessageQueue implements MessageQueue {
     this.#queue = options.queue ?? "fedify_queue";
     this.#delayedQueuePrefix = options.delayedQueuePrefix ?? "fedify_delayed_";
     this.#durable = options.durable ?? true;
+    this.nativeRetrial = options.nativeRetrial ?? false;
   }
 
   async #prepareQueue(channel: Channel): Promise<void> {
@@ -158,16 +178,33 @@ export class AmqpMessageQueue implements MessageQueue {
     const reply = await channel.consume(this.#queue, (msg) => {
       if (msg == null) return;
       const message = JSON.parse(msg.content.toString("utf-8"));
-      const result = handler(message);
-      if (result instanceof Promise) {
-        result.finally(() => channel.ack(msg));
-      } else {
-        channel.ack(msg);
+      try {
+        const result = handler(message);
+        if (result instanceof Promise) {
+          if (this.nativeRetrial) {
+            result
+              .then(() => channel.ack(msg))
+              .catch(() => channel.nack(msg, undefined, true));
+          } else {
+            result.finally(() => channel.ack(msg));
+          }
+        } else if (this.nativeRetrial) {
+          channel.ack(msg);
+        }
+      } catch {
+        if (this.nativeRetrial) {
+          channel.nack(msg, undefined, true);
+        }
+      } finally {
+        if (!this.nativeRetrial) {
+          channel.ack(msg);
+        }
       }
     }, {
       noAck: false,
     });
     return await new Promise((resolve) => {
+      if (options.signal?.aborted) resolve();
       options.signal?.addEventListener("abort", () => {
         channel.cancel(reply.consumerTag).then(() => {
           channel.close().then(() => resolve());

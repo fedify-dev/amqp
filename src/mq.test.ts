@@ -1,6 +1,6 @@
-import { suite } from "@alinea/suite";
+import { suite } from "@hongminhee/suite";
 import * as temporal from "@js-temporal/polyfill";
-import { assertEquals, assertGreater } from "@std/assert";
+import { assert, assertEquals, assertFalse, assertGreater } from "@std/assert";
 import { delay } from "@std/async/delay";
 // @deno-types="npm:@types/amqplib"
 import { type ChannelModel, connect } from "amqplib";
@@ -21,13 +21,16 @@ function getConnection(): Promise<ChannelModel> {
   return connect(url ?? "amqp://localhost");
 }
 
-test("AmqpMessageQueue", async () => {
+test("AmqpMessageQueue", {
+  sanitizeOps: false,
+  sanitizeExit: false,
+  sanitizeResources: false,
+}, async () => {
   const conn = await getConnection();
   const conn2 = await getConnection();
-  const queue = `fedify_queue_${Math.random().toString(36).slice(5)}`;
-  const delayedQueuePrefix = `fedify_delayed_${
-    Math.random().toString(36).slice(5)
-  }_`;
+  const randomSuffix = Math.random().toString(36).substring(2);
+  const queue = `fedify_queue_${randomSuffix}`;
+  const delayedQueuePrefix = `fedify_delayed_${randomSuffix}_`;
   const mq = new AmqpMessageQueue(conn, { queue, delayedQueuePrefix });
   const mq2 = new AmqpMessageQueue(conn2, { queue, delayedQueuePrefix });
 
@@ -98,6 +101,76 @@ test("AmqpMessageQueue", async () => {
   await conn.close();
   await conn2.close();
 });
+
+test(
+  "AmqpMessageQueue [nativeRetrial: false]",
+  { sanitizeOps: false, sanitizeExit: false, sanitizeResources: false },
+  async () => {
+    const conn = await getConnection();
+    const randomSuffix = Math.random().toString(36).substring(2);
+    const queue = `fedify_queue_${randomSuffix}`;
+    const delayedQueuePrefix = `fedify_delayed_${randomSuffix}_`;
+    const mq = new AmqpMessageQueue(conn, { queue, delayedQueuePrefix });
+    assertFalse(mq.nativeRetrial);
+
+    const controller = new AbortController();
+    let i = 0;
+    const listening = mq.listen((message: string) => {
+      if (message !== "Hello, world!") return;
+      if (i++ < 1) {
+        throw new Error("Test error to check native retrial");
+      }
+    }, { signal: controller.signal });
+
+    await mq.enqueue("Hello, world!");
+
+    await waitFor(() => i >= 1, 15_000);
+    assertEquals(i, 1);
+    await delay(5_000);
+
+    controller.abort();
+    await listening;
+    await conn.close();
+
+    assertEquals(i, 1);
+  },
+);
+
+test(
+  "AmqpMessageQueue [nativeRetrial: true]",
+  { sanitizeOps: false, sanitizeExit: false, sanitizeResources: false },
+  async () => {
+    const conn = await getConnection();
+    const randomSuffix = Math.random().toString(36).substring(2);
+    const queue = `fedify_queue_${randomSuffix}`;
+    const delayedQueuePrefix = `fedify_delayed_${randomSuffix}_`;
+    const mq = new AmqpMessageQueue(conn, {
+      queue,
+      delayedQueuePrefix,
+      nativeRetrial: true,
+    });
+    assert(mq.nativeRetrial);
+
+    const controller = new AbortController();
+    let i = 0;
+    const listening = mq.listen((message: string) => {
+      if (message !== "Hello, world!") return;
+      if (i++ < 1) {
+        throw new Error("Test error to check native retrial");
+      }
+    }, { signal: controller.signal });
+
+    await mq.enqueue("Hello, world!");
+
+    await waitFor(() => i > 1, 15_000);
+
+    controller.abort();
+    await listening;
+    await conn.close();
+
+    assertGreater(i, 1);
+  },
+);
 
 async function waitFor(
   predicate: () => boolean,

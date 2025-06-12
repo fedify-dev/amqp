@@ -9,15 +9,15 @@ importers:
   .:
     dependencies:
       '@fedify/fedify':
-        specifier: ^1.5.0
-        version: 1.6.1(web-streams-polyfill@3.3.3)
+        specifier: ^1.7.0-dev.887
+        version: 1.7.0-pr.251.886(web-streams-polyfill@3.3.3)
       amqplib:
         specifier: ^0.10.8
         version: 0.10.8
     devDependencies:
-      '@alinea/suite':
-        specifier: ^0.6.2
-        version: 0.6.2
+      '@hongminhee/suite':
+        specifier: ^0.6.3
+        version: 0.6.3
       '@js-temporal/polyfill':
         specifier: ^0.5.1
         version: 0.5.1
@@ -38,9 +38,6 @@ importers:
         version: 5.8.3
 
 packages:
-
-  '@alinea/suite@0.6.2':
-    resolution: {integrity: sha512-UEYs2OLLb5DCMVE/0C8AAhP+xjKdOujbfL+NIXtcCW0dyeQqxjRVVFu+JH5VsjNxkx9ZNgId0fU4HkoKRU49CQ==}
 
   '@babel/generator@7.27.5':
     resolution: {integrity: sha512-ZGhA37l0e/g2s1Cnzdix0O3aLYm66eF8aufiVteOgnwxgnRP8GoyMj7VWsgWnQbVKXyge7hqrFh2K2TQM6t1Hw==}
@@ -83,9 +80,12 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@fedify/fedify@1.6.1':
-    resolution: {integrity: sha512-KPfy4ETv96smVH52uBfM7RSuGPhUXeJfkhzH8EV0BVH2Whw3oT3UeaJMwRZ1OuVddtdGQ8lWui6tAH0cGV2YTg==}
+  '@fedify/fedify@1.7.0-pr.251.886':
+    resolution: {integrity: sha512-Lvbcnv9uIICU84o7ugKoenMhjbRt82/7eikFiu2kEHQl/Qp12mjHHJAWENpwxJJJiUTEut54bmOMxXVNwr9yLw==}
     engines: {bun: '>=1.1.0', deno: '>=2.0.0', node: '>=22.0.0'}
+
+  '@hongminhee/suite@0.6.3':
+    resolution: {integrity: sha512-jW0scPczSP5Mksq49c9stYIApHGijodCFvpKRcFAWImn5WRs4kVlzNwz9QpblaAvoErN8UsfP7OZl3mIk0VoLA==}
 
   '@hugoalh/http-header-link@1.0.3':
     resolution: {integrity: sha512-x4jzzKSzZQY115H/GxUWaAHzT5eqLXt99uSKY7+0O/h3XrV248+CkZA7cA274QahXzWkGQYYug/AF6QUkTnLEw==}
@@ -538,8 +538,6 @@ packages:
 
 snapshots:
 
-  '@alinea/suite@0.6.2': {}
-
   '@babel/generator@7.27.5':
     dependencies:
       '@babel/parser': 7.27.5
@@ -589,7 +587,7 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@fedify/fedify@1.6.1(web-streams-polyfill@3.3.3)':
+  '@fedify/fedify@1.7.0-pr.251.886(web-streams-polyfill@3.3.3)':
     dependencies:
       '@cfworker/json-schema': 4.1.1
       '@es-toolkit/es-toolkit': es-toolkit@1.39.3
@@ -612,6 +610,8 @@ snapshots:
       urlpattern-polyfill: 10.1.0
     transitivePeerDependencies:
       - web-streams-polyfill
+
+  '@hongminhee/suite@0.6.3': {}
 
   '@hugoalh/http-header-link@1.0.3':
     dependencies:

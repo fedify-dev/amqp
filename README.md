@@ -30,6 +30,17 @@ const federation = createFederation({
 });
 ~~~~
 
+The `AmqpMessageQueue` constructor accepts options as the second
+parameter, which can be used to configure the message queue:
+
+~~~~ typescript
+new AmqpMessageQueue(await connect("amqp://localhost"), {
+  queue: "my_queue",
+})
+~~~~
+
+For more details, please refer to the docs of [`AmqpMessageQueueOptions`].
+
 [JSR]: https://jsr.io/@fedify/amqp
 [JSR badge]: https://jsr.io/badges/@fedify/amqp
 [npm]: https://www.npmjs.com/package/@fedify/amqp
@@ -41,6 +52,7 @@ const federation = createFederation({
 [`KvStore`]: https://jsr.io/@fedify/fedify/doc/federation/~/KvStore
 [`MessageQueue`]: https://jsr.io/@fedify/fedify/doc/federation/~/MessageQueue
 [`AmqpMessageQueue`]: https://jsr.io/@fedify/amqp/doc/mq/~/AmqpMessageQueue
+[`AmqpMessageQueueOptions`] https://jsr.io/@fedify/amqp/doc/mq/~/AmqpMessageQueueOptions
 
 
 Installation
@@ -71,6 +83,9 @@ Changelog
 ### Version 0.3.0
 
 To be released.
+
+ -  Added `nativeRetrial` option to `AmqpMessageQueueOptions` to enable
+    native retrial of messages.
 
  -  The type of the `AmqpMessageQueue()` constructor's first parameter has been
     changed from `Connection` to `ChannelModel`.

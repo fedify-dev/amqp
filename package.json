@@ -35,18 +35,18 @@
     },
     "./package.json": "./package.json"
   },
+  "peerDependencies": {
+    "@fedify/fedify": "^1.7.0-dev.887",
+    "amqplib": "^0.10.8"
+  },
   "devDependencies": {
-    "@alinea/suite": "^0.6.2",
+    "@hongminhee/suite": "^0.6.3",
     "@js-temporal/polyfill": "^0.5.1",
     "@std/assert": "jsr:^1.0.13",
     "@std/async": "jsr:^1.0.13",
     "@types/amqplib": "^0.10.7",
     "tsdown": "^0.12.7",
     "typescript": "^5.8.3"
-  },
-  "peerDependencies": {
-    "@fedify/fedify": "^1.5.0",
-    "amqplib": "^0.10.8"
   },
   "scripts": {
     "build": "tsdown",
