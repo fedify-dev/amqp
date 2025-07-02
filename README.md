@@ -3,6 +3,10 @@
 @fedify/amqp: AMQP/RabbitMQ driver for Fedify
 =============================================
 
+> [!IMPORTANT]
+> This repository is obsolete and has been archived in favor of the monorepo
+> [fedify-dev/fedify].
+
 [![JSR][JSR badge]][JSR]
 [![npm][npm badge]][npm]
 [![GitHub Actions][GitHub Actions badge]][GitHub Actions]
@@ -41,6 +45,7 @@ new AmqpMessageQueue(await connect("amqp://localhost"), {
 
 For more details, please refer to the docs of [`AmqpMessageQueueOptions`].
 
+[fedify-dev/fedify]: https://github.com/fedify-dev/fedify
 [JSR]: https://jsr.io/@fedify/amqp
 [JSR badge]: https://jsr.io/badges/@fedify/amqp
 [npm]: https://www.npmjs.com/package/@fedify/amqp
